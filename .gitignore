@@ -1,0 +1,16 @@
+# Local Python environments
+.venv/
+
+# Python bytecode and test caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Packaging outputs
+*.egg-info/
+build/
+dist/
+
+# Local document-inspection intermediates
+tmp/
+
