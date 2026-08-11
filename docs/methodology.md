@@ -11,6 +11,8 @@ Bu belge iki yayının tamamı incelenerek hazırlanmıştır. Kaynak kodu eşle
   statik ön/arka yük paylaşımı için açık kuvvet ve moment dengesi.
 - **P2:** Bu projenin Faz 2 şartnamesi; SI birim sözleşmesi, toplam/ön/arka
   referans alanı çözümü ve bağımsız residual kontrolleri.
+- **P3:** Bu projenin Faz 3 şartnamesi; düz, simetrik, sabit-kord V-foil için
+  geometri referansları, ıslak alan ve Faz 2 alan aktarımı.
 
 R1 ve R2, foil boyuna konumlarının ön/arka yükleri belirlemek için kullanıldığını
 söyler; ancak iki foil arasındaki statik yük paylaşımını ayrı, numaralı bir
@@ -38,9 +40,9 @@ R1 Bölüm 3 ve R2 Bölüm 3'teki ortak sıra şöyledir:
    Holtrop, daha büyük değerler için Savitsky kullanımını ve toplam direnç/güç
    eğrilerini tarif eder.
 
-Bu projede boyuna statik yük paylaşımı ile seçilmiş ortak `W/S` değerinden temel
-referans alanlarının bulunması uygulanmıştır. Profil, kord/span geometrisi,
-hidrodinamik katsayılar ve sonraki adımlar kod kapsamı dışındadır.
+Bu projede boyuna statik yük paylaşımı, seçilmiş ortak `W/S` değerinden temel
+referans alanları ve düz/simetrik surface-piercing V-foil geometrisi
+uygulanmıştır. Profil ve hidrodinamik katsayılar sonraki fazların kapsamıdır.
 
 ## 3. Koordinat ve kuvvet sistemi
 
@@ -139,11 +141,48 @@ Tarama, iki sınırı da içeren doğrusal ve deterministik `sample_count` nokta
 ve maksimum alan, son nokta maksimum loading ve minimum alandır. Hesap çekirdeği
 yuvarlama yapmaz.
 
-## 6. R1 surface-piercing yöntem haritası
+## 6. Faz 3: surface-piercing V-foil geometrisi
+
+R1 journal s.59 (PDF s.7), surface-piercing foilde bir bölümün daima su dışında
+kaldığını ve ıslak alanın her hız/yükselme durumunda yeniden hesaplandığını
+belirtir. Aynı bölüm spanların diyedral ve eğim açılarına göre ayarlandığını
+söyler. R1 journal s.62-64 (PDF s.10-12), V/double-V/W/flat-bottom-V
+konfigürasyonlarını ve foil height, dihedral, submergence/emersion girdilerini
+gösterir. R2, surface-piercing arayüzünü doğrular fakat bu yöntemin bildiride
+sunulmadığını belirtir.
+
+Kaynaklar düz V için tam geometrik dönüşüm algoritmasını, span eksenini veya
+`h_f` sembolünü tek anlamlı şekilde yayımlamaz. Bu nedenle aşağıdaki `VG-*`
+ilişkileri P3 proje tanımlarıdır ve yayın denklem numarası değildir:
+
+| Kimlik | Denklem | Birimler |
+|---|---|---|
+| VG-01 | `l = b_dev/2` | `[m]` |
+| VG-02 | `h_f = l sin(Gamma)` | `[m]` |
+| VG-03 | `b_h = b_dev cos(Gamma)` | `[m]` |
+| VG-04 | `c = S_ref/b_dev` | `[m]` |
+| VG-05 | `l_wet = d/sin(Gamma)` | `[m]` |
+| VG-06 | `S_wet = 2 c l_wet` | `[m²]` |
+| VG-07 | `f_wet = S_wet/S_ref = d/h_f` | boyutsuz |
+| VG-08 | `b_WL = 2 d cot(Gamma)` | `[m]` |
+| VG-09 | `l_dry = l-l_wet`, `e=h_f-d` | `[m]` |
+
+Burada `S_ref` iki tam panelin foil düzlemlerindeki toplam referans alanı,
+`b_dev` iki fiziksel eğik panel uzunluğunun toplamı, `Gamma` panel-yatay açısı
+ve `d` sakin su hattından aşağı pozitif apeks batmasıdır. Geçerli durum
+`0 < d < h_f`dir. R1 Denklem (17)'de “foil submersion” denilen `h_f`, bu
+projedeki fiziksel apeks-uç yüksekliğiyle otomatik olarak özdeşleştirilmez.
+
+Faz 2 `fore_area_m2` ve `aft_area_m2` değerleri Phase 3'te yeniden hesaplanmadan
+ilgili geometrilere aktarılır. Ayrıntılı sözlük ve sınırlar
+`phase_3_geometry_definitions.md` içindedir.
+
+## 7. R1 surface-piercing hidrodinamik yöntem haritası
 
 Aşağıdaki yüksek-faz denklemleri yalnız kaynak haritasıdır ve bu sürümde
 uygulanmamıştır. Denklem (53)'ün yalnız `W/S` boyutsal tanımı Faz 2'de
-kullanılmış; `C_L`, `q` veya kavitasyon hesabı uygulanmamıştır.
+kullanılmış; `C_L`, `q` veya kavitasyon hesabı uygulanmamıştır. Faz 3'ün statik
+geometrik ıslak alanı bu hidrodinamik denklemlerin uygulandığı anlamına gelmez.
 
 | R1 denklem(ler)i | İçerik | Değişken ve birim özeti |
 |---|---|---|
@@ -166,7 +205,7 @@ spanları yapısal hesapta dihedral ve eğim açılarına göre düzeltilir. Şe
 V, double-V, W ve flat-bottom-V geometrilerini gösterir; ancak tam geometrik
 dönüşüm algoritması yayımlanmaz.
 
-## 7. R2 çapraz kontrol haritası
+## 8. R2 çapraz kontrol haritası
 
 R2, fully-submerged bağıntıları daha kısa numaralandırır:
 
@@ -181,18 +220,18 @@ R2 Bölüm 1 ve 4.2.2.1, programın surface-piercing foil de işlediğini ancak 
 kısmın bildiride sunulmadığını açıkça söyler. Dolayısıyla surface-piercing için
 R2'den bağımsız bir denklem veya katsayı alınmamıştır.
 
-## 8. Kaynaklar arasındaki farklar
+## 9. Kaynaklar arasındaki farklar
 
 | Konu | R1 (2022) | R2 (2020) | Proje kararı |
 |---|---|---|---|
 | Kapsam | Fully-submerged ve surface-piercing | Ayrıntılı bağıntılar yalnız fully-submerged | Surface-piercing için R1 ana otorite |
 | Denklem numarası | Geniş türetim nedeniyle (13)-(56) ana tasarım denklemleri | Aynı fully-submerged çekirdek (1)-(25) | Her belgede kendi numarası korunur |
-| AR düzeltmesi | (16) fully-submerged, (17) surface-piercing | (4) fully-submerged | R1 (17), Faz 3 öncesi tanım doğrulamasıyla kullanılabilir |
+| AR düzeltmesi | (16) fully-submerged, (17) surface-piercing | (4) fully-submerged | R1 (17), Faz 4+ öncesi sembol doğrulaması gerektirir |
 | İndüklenmiş drag | Surface-piercing için uygulanmaz | Yalnız fully-submerged anlatılır | Bu turda kodlanmadı |
-| Islak alan | Hız/yükselme başına yeniden hesaplanır | Surface-piercing algoritması sunulmaz | Tam algoritma olmadan uygulanmayacak |
+| Islak alan | Hız/yükselme başına yeniden hesaplanır | Surface-piercing algoritması sunulmaz | Faz 3 yalnız kullanıcının verdiği sakin-su-hattı geometrisini P3 ile hesaplar; dinamik algoritma uygulanmaz |
 | Sonuç birimleri | Formüllerde kgf, sonuç tablolarında N/kN görülür | Formüllerde kgf, metrik arayüz | Çekirdek yalnız SI; dönüşüm doğrulanmadan aktarım yok |
 
-## 9. Açık noktalar ve mühendislik belirsizlikleri
+## 10. Açık noktalar ve mühendislik belirsizlikleri
 
 1. **Ön/arka statik yük denklemi:** R1/R2 boyuna konumların yük için
    kullanıldığını söyler ama yük paylaşımı denklemini yayımlamaz. Faz 1, P1'deki
@@ -207,10 +246,10 @@ R2'den bağımsız bir denklem veya katsayı alınmamıştır.
 4. **Parantez dizgisi:** R1 (16) ve R2 (4) metin dizgisinde `AR/AR+2` görünür;
    amaçlanan parantezin `AR/(AR+2)` olduğu bağlamdan güçlü biçimde anlaşılır,
    fakat uygulama öncesi açık kaynak kaydı tutulmalıdır.
-5. **Surface-piercing ıslak geometri:** R1 `S`'nin hız/yükselme ile yeniden
-   hesaplandığını ve spanın dihedral/eğime göre düzeltildiğini söyler; V türleri
-   için tam cebirsel sıra, `h_f`, `b`, foil height, emersion ve waterline kesişim
-   tanımları yeterince verilmez.
+5. **Surface-piercing ıslak geometri:** Kaynaktaki tam cebirsel sıra ve sembol
+   eksikleri devam eder. Faz 3 bu boşluğu açık P3 proje sözleşmesiyle doldurur;
+   dinamik yükselme/hız modeli veya diğer V türleri kaynak denklemiymiş gibi
+   sunulmaz.
 6. **Surface-piercing drag:** R1, `C_Di=0` kabulünü açıkça verir ancak bunun
    yerine ek spray/ventilation veya serbest yüzey drag terimi tanımlamaz.
 7. **Yapısal Denklem (37):** `W/S`, `g`, `sigma_y`, güvenlik katsayısı ve
@@ -225,7 +264,6 @@ R2'den bağımsız bir denklem veya katsayı alınmamıştır.
 10. **Açı birimi:** Teorik `C_Lalpha=2 pi` radian tabanlıdır; sonuç tabloları
     hücum açısını derece gösterir. Hesap ve sunum dönüşümü açıkça ayrılmalıdır.
 
-Bu belirsizlikler, ilgili sonraki faz başlamadan çözülmelidir. Faz 2 yalnız
-birimi kesinleştirilmiş kuvvet/alan denklemlerini uygular; belirsiz ampirik
-bağıntıları koda aktarmaz.
-
+Bu belirsizlikler, ilgili sonraki faz başlamadan çözülmelidir. Faz 3 yalnız açık
+Öklid geometrisi ve Faz 2 alan aktarımını uygular; belirsiz ampirik bağıntıları
+koda aktarmaz.

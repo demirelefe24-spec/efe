@@ -7,7 +7,7 @@ da kapsayan ve Windows uygulaması olarak dağıtılabilen bir masaüstü aracı
 
 ## Mevcut kapsam
 
-Sürüm `0.2.0` Faz 0, Faz 1 ve Faz 2'yi kapsar:
+Sürüm `0.3.0` Faz 0, Faz 1, Faz 2 ve Faz 3'ü kapsar:
 
 - iki ana kaynağın yöntem, denklem, birim ve belirsizlik haritası;
 - tekne kütlesinden SI biriminde ağırlık hesabı;
@@ -17,6 +17,11 @@ Sürüm `0.2.0` Faz 0, Faz 1 ve Faz 2'yi kapsar:
 - ortak loading altında toplam, ön ve arka foil referans alanları;
 - kullanıcı tarafından açıkça seçilen loading aralığında deterministik tarama;
 - alan toplamı, loading-kuvvet ve alan/yük oranı residual kontrolleri;
+- düz, simetrik, sabit kordlu surface-piercing V-foil geometrisi;
+- geliştirilmiş/yatay açıklık, kord, foil yüksekliği, ıslak alan/oran, su hattı
+  genişliği ve su dışındaki panel geometrisi;
+- Faz 2 ön/arka referans alanlarının doğrudan Faz 3 çift-foil geometrisine
+  aktarılması ve alan kapanış kontrolleri;
 - açık girdi doğrulaması, birim testleri ve bir demo programı.
 
 Hesap çekirdeği kullanıcı arayüzünden bağımsızdır ve terminal çıktısı üretmez.
@@ -27,6 +32,10 @@ Hesap çekirdeği kullanıcı arayüzünden bağımsızdır ve terminal çıktı
 - Faz 2'de `W/S`, kuvvet tabanlı foil loading'dir ve kanonik birimi
   `N/m² = Pa` olarak saklanır. Aynı birimi kullanan dinamik basınçla aynı
   fiziksel büyüklük değildir.
+- Faz 3 diyedral girdisi derecedir; trigonometrik hesap için çekirdekte radyana
+  dönüştürülür. Apeks batması sakin su hattından aşağı doğru pozitiftir.
+- `total_developed_span_m`, iki eğik panelin fiziksel uzunlukları toplamıdır;
+  yatay izdüşümlü span ayrı bir sonuçtur.
 - Boyuna orijin kıç referansıdır; pozitif `x` kıçtan başa doğrudur.
 - Pozitif foil kaldırması yukarı yönlüdür.
 - `x_A`: arka foil kaldırma merkezinin kıçtan konumu.
@@ -60,13 +69,14 @@ yalnız test ek bağımlılığıdır.
 ```
 
 Test toleransları isimlendirilmiş sabitlerdir; hesap çekirdeğinde yuvarlama
-yapılmaz. Sürüm 0.2.0 doğrulamasında 69 test geçmektedir.
+yapılmaz. Sürüm 0.3.0 doğrulamasında 98 test geçmektedir.
 
 ## Örnek kullanım
 
 ```powershell
 .venv\Scripts\python examples\load_balance_example.py
 .venv\Scripts\python examples\foil_loading_example.py
+.venv\Scripts\python examples\surface_piercing_geometry_example.py
 ```
 
 Örnek, `1299 kg`, `x_G = 1.987 m`, `x_A = 0.750 m` ve `x_F = 3.250 m`
@@ -107,10 +117,32 @@ area_result = calculate_foil_areas(
 Ön ve arka foil için aynı loading kullanılır. Loading sınırları zorunlu kullanıcı
 girdileridir; genel veya pratik yayın aralığı gizli varsayılan değildir.
 
+Faz 3 çift-foil hesabı, Faz 2 alan sonucunu değiştirmeden yeniden kullanır:
+
+```python
+from hydrofoil_designer import (
+    SurfacePiercingVFoilPairInputs,
+    calculate_surface_piercing_v_foil_pair,
+)
+
+geometry = calculate_surface_piercing_v_foil_pair(
+    SurfacePiercingVFoilPairInputs(
+        foil_area_result=area_result,
+        fore_total_developed_span_m=1.60,
+        fore_dihedral_deg=35.0,
+        fore_apex_submergence_m=0.22,
+        aft_total_developed_span_m=1.80,
+        aft_dihedral_deg=30.0,
+        aft_apex_submergence_m=0.20,
+    )
+)
+```
+
 ## Henüz desteklenmeyen özellikler
 
-Kord, span ve V-foil geometrisi; hızla değişen surface-piercing ıslak alanı;
-hidrodinamik çalışma noktası; hücum açısı; aspect-ratio ve serbest yüzey
+Taper, sweep, eğrisel panel, flat-bottom/double-V/W geometrisi; hız, heave,
+pitch veya dalgayla değişen surface-piercing ıslak alanı; hidrodinamik çalışma
+noktası; hücum açısı; aspect-ratio ve serbest yüzey
 düzeltmeleri; stall,
 yapısal kalınlık ve kavitasyon sınırları; kalkış, direnç ve güç analizi; profil
 veri tabanı; grafikler; GUI; proje dosyası; CSV/rapor; `.exe`; CFD, FEA,
@@ -122,6 +154,8 @@ optimizasyon, 3B geometri ve CAD aktarımı uygulanmamıştır.
 - [Kabuller](docs/assumptions.md)
 - [Birimler ve sözleşmeler](docs/units_and_conventions.md)
 - [Faz 2 doğrulaması](docs/phase_2_validation.md)
+- [Faz 3 geometri tanımları](docs/phase_3_geometry_definitions.md)
+- [Faz 3 doğrulaması](docs/phase_3_validation.md)
 - [Yol haritası](docs/roadmap.md)
 - [Yerel referans dosyaları](references/README.md)
 

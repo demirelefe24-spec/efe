@@ -13,10 +13,22 @@ Hesap çekirdeğinin kanonik sistemi SI'dır:
 | Moment | `N m` |
 | Foil loading | `N/m² = Pa` |
 | Hız | `m/s` |
+| Açı API girdisi | `deg` |
+| Açı trigonometrik iç değeri | `rad` |
 
 Foil loading `W/S`, bir referans alanı başına kuvvettir. Dynamic pressure da
 pascal birimini kullanabilir; aynı birim bu iki büyüklüğü fiziksel olarak aynı
 yapmaz.
+
+## Faz 3 geometri sözleşmesi
+
+- Diyedral, her panelin yatayla yaptığı açıdır ve public API'ye derece girilir.
+- Apeks batması sakin su hattından aşağı doğru pozitif metre cinsindedir.
+- Geliştirilmiş toplam span, iki eğik panelin fiziksel uzunlukları toplamıdır.
+- Yatay izdüşümlü span ayrı hesaplanır ve geliştirilmiş span yerine kullanılamaz.
+- Referans ve ıslak alanlar panel düzlemlerindeki planform alanlarıdır; yatay
+  izdüşümlü alan değildir.
+- Boyutsuz ıslak oran `0 < f_wet < 1` aralığındadır.
 
 ## Dönüşüm sabitleri
 
@@ -58,4 +70,3 @@ Pratik aralığın diğer birimleri:
 
 Dolayısıyla yayınlardaki `800-1200 PSI` ifadesi hesaplarda kullanılmaz ve
 muhtemel `PSF` dizgi hatası olarak korunur.
-

@@ -16,6 +16,16 @@ from .foil_loading_models import (
 )
 from .load_balance import calculate_static_load_balance
 from .models import LoadBalanceInputs, LoadBalanceResult
+from .surface_piercing_geometry import (
+    calculate_surface_piercing_v_foil_geometry,
+    calculate_surface_piercing_v_foil_pair,
+)
+from .surface_piercing_geometry_models import (
+    SurfacePiercingVFoilInputs,
+    SurfacePiercingVFoilPairInputs,
+    SurfacePiercingVFoilPairResult,
+    SurfacePiercingVFoilResult,
+)
 from .units import (
     kgf_per_m2_to_n_per_m2,
     kgf_to_n,
@@ -36,8 +46,14 @@ __all__ = [
     "FoilLoadingScanResult",
     "LoadBalanceInputs",
     "LoadBalanceResult",
+    "SurfacePiercingVFoilInputs",
+    "SurfacePiercingVFoilPairInputs",
+    "SurfacePiercingVFoilPairResult",
+    "SurfacePiercingVFoilResult",
     "calculate_foil_areas",
     "calculate_static_load_balance",
+    "calculate_surface_piercing_v_foil_geometry",
+    "calculate_surface_piercing_v_foil_pair",
     "kgf_per_m2_to_n_per_m2",
     "kgf_to_n",
     "knots_to_m_s",
@@ -46,4 +62,4 @@ __all__ = [
     "scan_foil_loadings",
 ]
 
-__version__ = "0.2.0"
+__version__ = "0.3.0"

@@ -89,3 +89,8 @@ FOIL_LOADING_VALUE_ABS_TOLERANCE_N_M2: Final[float] = 1.0e-9
 FOIL_LOADING_VALUE_REL_TOLERANCE: Final[float] = 1.0e-12
 """Relative tolerance applied to a foil-loading value."""
 
+GEOMETRY_LENGTH_RESIDUAL_ABS_TOLERANCE_M: Final[float] = 1.0e-12
+"""Absolute floor for surface-piercing geometry length closures, in metres."""
+
+GEOMETRY_LENGTH_RESIDUAL_REL_TOLERANCE: Final[float] = 1.0e-12
+"""Relative tolerance applied to the relevant geometry length scale."""

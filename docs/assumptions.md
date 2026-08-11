@@ -1,4 +1,4 @@
-# Faz 1 ve Faz 2 kabulleri
+# Faz 1, Faz 2 ve Faz 3 kabulleri
 
 Bu kayıt, statik yük dağılımı modelinin sonuçları yorumlanırken geçerli olan
 kabulleri görünür tutar.
@@ -23,14 +23,24 @@ kabulleri görünür tutar.
 12. Faz 2'de ön ve arka foil aynı kuvvet tabanlı loading değerini kullanır.
     Farklı ön/arka loading desteği bu sürümde yoktur.
 13. Hesaplanan `S_total`, `S_fore` ve `S_aft`, ortak `W/S` tanımından gelen
-    temel referans alanlarıdır. Bunlar kord/span/dihedral geometrisi veya
-    surface-piercing foilin hızla değişen gerçek ıslak alanı değildir.
+    temel referans alanlarıdır. Faz 3 bunları sabit-kord geometriye aktarır;
+    hızla değişen gerçek ıslak alan olarak yorumlamaz.
 14. Foil loading `[N/m²]` ile dinamik basınç `[Pa]` aynı boyuta sahiptir, ancak
     fiziksel olarak farklı büyüklüklerdir ve birbirinin yerine kullanılmaz.
 15. `3000-7000 kgf/m²` genel tarama aralığı ile `3800-5700 kgf/m²` pratik
     aralık ayrı kaynak verileridir. Yazılım hiçbirini gizli varsayılan seçmez.
 16. Faz 2 demosu pratik yayın aralığını yalnız doğrulama amacıyla kullanır;
     tekne için nihai foil loading veya alan seçimi değildir.
+17. Faz 3 foili iki düz, simetrik, aynı uzunlukta ve sabit kordlu panel olarak
+    modeller; taper, sweep, eğrisellik, strut ve karma V türleri yoktur.
+18. `S_ref`, iki tam panelin foil düzlemlerindeki toplam kuru/referans planform
+    alanıdır. `b_dev`, iki panelin fiziksel eğik uzunlukları toplamıdır.
+19. Diyedral her panelin yatayla yaptığı açıdır. Apeks batması sakin su hattından
+    aşağı doğru pozitiftir ve gerçek surface-piercing durumunda `0 < d < h_f`dir.
+20. Faz 3 ıslak alanı, kullanıcı tarafından verilen tek bir sakin su hattı için
+    geometriktir; heave, pitch, dalga, ventilasyon, spray ve esneklik yoktur.
+21. Ön ve arka foil kendi span, diyedral ve batma girdilerine sahiptir; referans
+    alanları yalnız sağlanan Faz 2 sonuç nesnesinden alınır.
 
 Bu kabuller kaldırıldığında mevcut statik yük ve ortak-loading alan modeli
 yeterli olmayabilir; ek denge denklemleri, geometri ve hidrodinamik girdiler
