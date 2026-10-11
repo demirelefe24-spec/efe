@@ -1,0 +1,22 @@
+{
+  "name": "hydrofoil",
+  "title": "Hidrofoil",
+  "format": {
+    "width": 1080,
+    "height": 1920,
+    "fps": 24,
+    "bpm": 120,
+    "duration": 30.0,
+    "frames": 720
+  },
+  "storyFormat": "F2 morph chain (5 eras, 3 shape morphs, 1 hard cut)",
+  "style": "math",
+  "review": {
+    "safe": {
+      "top": 240,
+      "bottom": 420,
+      "right": 140
+    },
+    "refs": {}
+  }
+}

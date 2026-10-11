@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hidrofoil</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #050506; overflow: hidden; }
+  body { display: flex; align-items: center; justify-content: center; }
+  canvas { height: min(100vh, calc(100vw * 16 / 9)); width: auto; aspect-ratio: 9 / 16; display: block; cursor: pointer; }
+</style>
+</head>
+<body>
+<canvas id="c" width="1080" height="1920"></canvas>
+<script>
+"use strict";
+// =====================================================================
+//  HIDROFOIL — 9:16, 30.0s @ 120 BPM, 24fps, motion on 1s. A boat speeds up; lift grows with v²; when L = W the hull
+//  leaves the water. Morph chain: boat -> foil profile -> formula -> L–v graph, then one hard cut (the slam) back to the boat.
+//  Colour code (one colour per quantity, everywhere): L lift green, W weight red, v speed blue, D drag orange,
+//  ρ teal, S purple, C_L gold; yellow only for the moment L = W.
+//  The counter at the top (L/W) is computed from one tracker q(t) = v / v₁ (v₁ = take-off speed): L/W = q².
+// =====================================================================
+const FPS = 24, W = 1080, H = 1920;
+const BPM = 120, BEAT = 60 / BPM, E8 = BEAT / 2, E16 = BEAT / 4;
+const DURATION = 30.0;
+const NFRAMES = Math.round(DURATION * FPS);
+const LOOP_T = NFRAMES / FPS;
+const SAFE = { top: 240, bottom: 420, right: 140 };
+const HAND = 'Cambria, "Cambria Math", "Latin Modern Roman", "CMU Serif", "STIX Two Text", "Times New Roman", Georgia, serif';
+const CX = 500;   // caption centre x: the middle of the safe area (x 60-940)
+
+const ERA_LIST = [
+  [0.0, 7.0, () => sceneBoat()],
+  [7.0, 12.0, () => sceneFoil()],
+  [12.0, 17.5, () => sceneFormula()],
+  [17.5, 23.5, () => sceneGraph()],
+  [23.5, 30.0, () => sceneFly()],
+];
+const SHOTS = [
+  ['boat',    0, 0.0, 7.0, 'tekne hızlanır; gövde suyu iter, foiller kaldırma üretmeye başlar'],
+  ['foil',    1, 7.0, 12.0, 'foil profili: akım aşağı sapar, L yukarı büyür'],
+  ['formula', 2, 12.0, 17.5, 'L = ½ρv²SC_L; v iki katı → L dört katı'],
+  ['graph',   3, 17.5, 23.5, 'L–v parabolü W çizgisine tırmanır; sessizlik'],
+  ['fly',     4, 23.5, 30.0, 'L = W: gövde sudan çıkar, direnç düşer'],
+];
+const TIMELINE = {
+  width: W, height: H, fps: FPS, bpm: BPM, duration: DURATION, frames: NFRAMES, loop: LOOP_T, safe: SAFE,
+  format: 'morph-chain',
+  shots: SHOTS.map(([key, era, t0, t1, title], i) => ({ id: i + 1, key, era, t0, t1, title })),
+  cuts: [23.5],
+  morphs: [7.0, 12.0, 17.5],
+  cues: {
+    go: 1.5, drag: 2.5, push: 5.2,                                   // boat
+    flow: 7.4, lift: 8.6, down: 9.8,                                 // foil
+    eq: 12.3, v2: 13.6, sq: 14.2, sq2: 15.0, rho: 15.7,              // formula
+    axes: 17.7, curve: 18.3, wline: 18.9, climb: 19.4, hush: 22.0,   // graph
+    slam: 23.5, eqLW: 25.0, home: 27.5,                              // fly
+  },
+  acts: [
+    { name: '1 Hızlanma', role: 'build',   t0: 0.0,  t1: 12.0 },
+    { name: '2 Formül',   role: 'journey', t0: 12.0, t1: 17.5 },
+    { name: '3 Tırmanış', role: 'peak',    t0: 17.5, t1: 22.0 },
+    { name: '4 Sessizlik', role: 'silence', t0: 22.0, t1: 23.5 },
+    { name: '5 Kalkış',   role: 'gift',    t0: 23.5, t1: 27.5 },
+    { name: '6 Dönüş',    role: 'goodbye', t0: 27.5, t1: 30.0 },
+  ],
+  board: [
+    { t: 1.0,  title: 'durgun: gövde suda', sound: 'sessiz bir pad', next: 'v artmaya başlar' },
+    { t: 5.0,  title: 'gövde suyu itiyor', sound: 'groove başlar', next: 'foile yaklaş, profile morph' },
+    { t: 10.6, title: 'foil suyu aşağı iter', sound: 'groove kalınlaşır', next: 'L oku formüldeki L olur' },
+    { t: 16.8, title: 'L = ½ρv²SC_L', sound: 'her Write\'ta pluck', next: 'v² parabole dönüşür' },
+    { t: 21.4, title: 'parabol W\'ye tırmanır', sound: 'en yoğun', next: 'nokta çizginin hemen altında' },
+    { t: 23.0, title: 'sessizlik', sound: '−40 dB', next: 'sert kesme' },
+    { t: 24.6, title: 'L = W: kalkış', sound: 'en yüksek vuruş', next: 'uçuş' },
+    { t: 29.0, title: 'açılış karesi, değişmiş', sound: 'sönüyor', next: 'başa döner' },
+  ],
+  narration: [],
+};
+window.TIMELINE = TIMELINE;
